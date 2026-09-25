@@ -14,10 +14,10 @@ A new P0 customer transcript is uploaded to the "Raw Input" column in Juno (the 
 
 ## The flow
 
-1. 1. RAG retrieval over the RocketShip Strategy One-Pager (M3 KB), top-K = 6.
+1. 1. RAG retrieval over the RocketShip Strategy One-Pager (M3 KB), top-K = 5.
 2. Comparison logic, does the transcript pain point map to a strategic pillar?
 3. Risk + alignment scoring, emit P0-P3 with a strategic-rationale citation.
-4. Confidence check, score < 30 → notRecommended; score ≥ 70 → P0/P1.
+4. Confidence check, score < 40 → notRecommended; score ≥ 75 → P0/P1.
 2. "Scanning Strategy One-Pager…" → "Cross-referencing 1 transcript with 4 strategic pillars…" → "Synthesising priorities + drafting PRD section…"
 3. Path A (Strategy loaded) → grounded prioritization with citations.
 Path B (Strategy missing) → "Cautious mode", generic priorities tagged "low confidence" + nudge to load the strategy doc.
@@ -43,6 +43,8 @@ Manual demote → logged as "strategic-alignment correction." 3+ similar overrid
 **Fail-safe**
 
 If RAG returns no match for a transcript pain → Juno tags the card "Outside current strategy" + amber warning. Never invents an alignment. PM can promote manually or send back for clarification.
+
+If a pain point has only one source, Juno cannot rank it above P2. The card is tagged NEEDS CLARIFICATION and names the second source that would confirm it (same single-source rule as the M1 system prompt).
 
 ## Self-review
 
