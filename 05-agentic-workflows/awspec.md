@@ -18,36 +18,36 @@ New message in #escalations tagged P0 AND thread length >= 5 messages within 10 
 
 | Step | Action | Tool / model | Guardrail |
 |---|---|---|---|
-| 1 | Read the thread + retrieve customer ID and ARR if mentioned. | slack.read_thread(id), read-only | Agent can READ Slack #escalations + Strategy KB + Salesforce ARR. Agent can WRITE to #pm-daily and create Jira stubs. Agent CANNOT edit Salesforce records, edit Jira tickets after creation, or post outside #pm-daily. |
-| 2 | RAG retrieval over the RocketShip Strategy One-Pager (M3 KB), top-K = 6. | corpus.retrieve(query, k=6), read-only |  |
-| 3 | Score risk + alignment vs strategic pillars; emit P0-P3 with rationale. | salesforce.lookup_arr(customer_id), read-only |  |
-| 4 | Draft summary card (transcript quote + strategic citation). | jira.create_stub(payload), write, requires confidence >= 80% |  |
+| 1 | Read the thread + collect the linked source IDs (TICK-####, ROCKET-###). | slack.read_thread(id), read-only | Agent can READ Slack #escalations + Strategy KB + Jira ROCKET issues. Agent can WRITE to #pm-daily and create Jira stubs. Agent CANNOT read Salesforce, ARR or contract data (asks the PM for the ARR sheet instead), edit Jira tickets after creation, or post outside #pm-daily. |
+| 2 | RAG retrieval over the RocketShip Strategy One-Pager (M3 KB), top-K = 5. | corpus.retrieve(query, k=5), read-only |  |
+| 3 | Score risk + alignment vs strategic pillars; emit P0-P3 with rationale. | jira.search(query), read-only |  |
+| 4 | Draft summary card (transcript quote + strategic citation). | jira.create_stub(payload), write, requires confidence >= 85% |  |
 | 5 | Post to #pm-daily OR route to PM review based on confidence threshold. | slack.post(channel, payload), write, restricted to #pm-daily |  |
 
 **Schemas**
 
 - corpus.retrieve → {chunks:[{text,source,pillar,score}]}.
-- salesforce.lookup_arr → {arr_usd, contract_end, churn_risk}.
+- jira.search → {issues:[{id, title, status, mentions}]}.
 - jira.create_stub → {ticket_id, url, status}.
 
 **Memory (in or out of scope)**
 
 - **Episodic:** In-scope, tool results, retrieved chunks, intermediate scores. Lifetime: end of run.
 - **Semantic:** In-scope, RocketShip strategic taxonomy + Juno system prompt + PM preferences. Lifetime: indefinite, refreshed weekly. Out of scope, do NOT persist customer-specific contracts or PII.
-- **Working:** In-scope, current thread, customer ID, ARR, retrieved KB chunks, current confidence score. Held in working context only.
-- **External:** Slack thread API (read), RocketShip Strategy KB (read), Salesforce ARR lookup (read), #pm-daily channel (write), Jira (write, stub creation only).
+- **Working:** In-scope, current thread, source IDs, retrieved KB chunks, current confidence score. Held in working context only.
+- **External:** Slack thread API (read), RocketShip Strategy KB (read), Jira ROCKET search (read), #pm-daily channel (write), Jira (write, stub creation only).
 
 ## Human-in-the-loop
 
-PM reviews any P0 with confidence < 70% before posting. Daily 8:55am: PM has a 5-min review window before the agent auto-posts to #pm-daily.
+PM reviews any P0 with confidence < 75% before posting. Daily 8:55am: PM has a 5-min review window before the agent auto-posts to #pm-daily.
 
 ## Success & failure
 
 - **Done when:** - Success: top-3 risk list posted to #pm-daily.
-- Failure: > 2 tool errors in a run → log + abort.
-- Escalation: confidence < 70% on any P0 → hand to PM.
-- Timeout: 90s wall clock → abort with partial output.
-- **Fails safe when:** Agent can READ Slack #escalations + Strategy KB + Salesforce ARR. Agent can WRITE to #pm-daily and create Jira stubs. Agent CANNOT edit Salesforce records, edit Jira tickets after creation, or post outside #pm-daily.
+- Failure: 3 consecutive tool errors in a run → log + abort.
+- Escalation: confidence < 75% on any P0 → hand to PM.
+- Timeout: 60s wall clock → abort with partial output.
+- **Fails safe when:** Agent can READ Slack #escalations + Strategy KB + Jira ROCKET issues. Agent can WRITE to #pm-daily and create Jira stubs. Agent CANNOT read Salesforce, ARR or contract data (asks the PM for the ARR sheet instead), edit Jira tickets after creation, or post outside #pm-daily.
 
 ## Self-review
 
