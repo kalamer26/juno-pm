@@ -10,9 +10,9 @@ RocketShip PMs need evidence-based prioritisation. Juno reads the strategy and t
 
 | Surface | Specification |
 |---|---|
-| 01 Context | Required: RocketShip Strategy One-Pager (the M2 deliverable, the single authority) + Zendesk tickets tagged P0/P1 from the last 90 days +… |
+| 01 Context | Required: RocketShip Strategy One-Pager (the M2 deliverable, the single authority) + Zendesk tickets tagged P0/P1 from the last 60 days +… |
 | 02 Tools | search_strategy(query) - READ read_tickets(filter) - READ draft_priority(insight_id, priority, rationale) - DRAFT write_roadmap(insight_id,… |
-| 03 Loop | Ceiling of 5 tool turns per prioritisation request. On turn 5, return the best current ranking labelled "turn limit reached" rather than… |
+| 03 Loop | Ceiling of 6 tool turns per prioritisation request. On turn 6, return the best current ranking labelled "turn limit reached" rather than… |
 | 04 Memory | Per PM, per sprint. Juno remembers the rationale behind each ranking it produced this sprint, so it can explain a change rather than… |
 | 05 Permissions | read auto · draft auto · write confirm · send blocked |
 | 06 Verification | Every priority must cite at least one clause that appears verbatim in the strategy document loaded this session. |
@@ -21,7 +21,7 @@ RocketShip PMs need evidence-based prioritisation. Juno reads the strategy and t
 
 **Required sources, and exclusions**
 
-Required: RocketShip Strategy One-Pager (the M2 deliverable, the single authority) + Zendesk tickets tagged P0/P1 from the last 90 days + Slack #voice-of-customer from the last 90 days.
+Required: RocketShip Strategy One-Pager (the M2 deliverable, the single authority) + Zendesk tickets tagged P0/P1 from the last 60 days + Slack #voice-of-customer from the last 60 days. Sixty days keeps the signal inside the current quarter's churn work.
 
 Excluded: Salesforce closed-lost notes and exec Slack DMs. Both are opinion-heavy and would let Juno rank on seniority rather than evidence. Named here so the exclusion is a decision on the record, not an oversight.
 
@@ -29,7 +29,7 @@ Excluded: Salesforce closed-lost notes and exec Slack DMs. Both are opinion-heav
 
 Strategy One-Pager: re-sync on commit, it lives in git. Tickets and Slack: hourly.
 
-Nothing older than 24 hours is served without a "may be stale" label on the citation. If the strategy document is unreachable, Juno does not fall back to a cached copy or to its own judgement. It returns "no strategy source available" and ranks nothing.
+Nothing older than 12 hours is served without a "may be stale" label on the citation. If the strategy document is unreachable, Juno does not fall back to a cached copy or to its own judgement. It returns "no strategy source available" and ranks nothing.
 
 ## 02 Tools · System Capabilities
 
@@ -46,19 +46,21 @@ No notify_stakeholder() or post_to_slack(). Both are class SEND. A wrong priorit
 
 No delete_ticket() or close_ticket(). Destructive, and nothing about prioritisation requires it.
 
+No lookup_arr() or any CRM read. Juno cannot see ARR, contract terms or billing (M1 system prompt). If a ranking needs ARR, Juno asks the PM for the ARR sheet and stops, rather than estimating.
+
 ## 03 Loop · AI Costs & Latency
 
 **Turn ceiling and escalation**
 
-Ceiling of 5 tool turns per prioritisation request. On turn 5, return the best current ranking labelled "turn limit reached" rather than truncating silently.
+Ceiling of 6 tool turns per prioritisation request. On turn 6, return the best current ranking labelled "turn limit reached" rather than truncating silently.
 
 Escalate to the PM after 3 consecutive failed tool calls, and immediately if two retrieved strategy clauses contradict each other. A contradiction in the strategy is a signal for a human, not a tiebreak for Juno.
 
 **Latency and cost target**
 
-p95 under 8 seconds from Process click to ranked draft. Cost ceiling $0.12 per run.
+p95 under 10 seconds from Process click to ranked draft. Cost ceiling $0.08 per run.
 
-At roughly 40 runs per PM per month across 12 PMs, that is about $58 a month. Small enough that the turn ceiling is really a latency decision, not a cost one, and worth saying so out loud so nobody optimises the wrong number.
+At roughly 40 runs per PM per month across 12 PMs, that is about $38 a month (480 runs × $0.08). Small enough that the turn ceiling is really a latency decision, not a cost one, and worth saying so out loud so nobody optimises the wrong number.
 
 ## 04 Memory · Data Requirements
 
