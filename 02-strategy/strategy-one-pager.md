@@ -2,15 +2,15 @@
 
 ## 1. Problem & Workflow
 
-The Problem: roadmap discussions at RocketShip are driven by the loudest voice in Slack rather than customer evidence. Priorities reverse weekly; stakeholder trust is eroding.
+The Problem: RocketShip PMs spend hours turning interview transcripts, support tickets and exec emails into an Opportunity Brief, and the evidence trail is lost on the way. The brief reaches the prioritisation review without source IDs, so it cannot be defended and the most senior opinion wins. With Q3 focused on reducing enterprise churn, a problem raised across several tickets (for example the silent CSV export crash) can sit unranked because nobody had time to synthesise it.
 
 Prevention: Juno explicitly prevents 'opinion-driven prioritization' - the bad decision of moving a feature up the backlog because someone in #leadership posted strongly, instead of because the cited evidence outweighs the alternatives.
 
 ## 2. Target Metrics
 
-Cycle time: reduce average weekly roadmap prioritization from 2 hours to 30 minutes (75% reduction).
+Cycle time: reduce the time to turn a week of raw evidence into a defensible Opportunity Brief from 3 hours to 45 minutes (75% reduction).
 
-Leadership proof: under-10% rate of decisions reversed within 1 week, AND 90%+ of prioritised items have at least 2 cited sources from the corpus. Both metrics measurable in the first 30 days post-launch.
+Leadership proof: under-10% rate of decisions reversed within 1 week, AND 100% of prioritised items have at least 2 cited sources from the corpus (Juno refuses to build a brief from a single source). Both metrics measurable in the first 30 days post-launch.
 
 ## 3. Autonomy Level
 
@@ -34,5 +34,5 @@ Mitigation: a hard 'evidence balance' eval gate - reject any priority list where
 
 In: ranking the existing backlog with cited evidence; surfacing under-cited items; flagging conflicts between Slack escalations and Jira priorities.
 
-Out: (1) hiring or headcount decisions, (2) customer-facing comms about why a feature was deprioritised. Both stay 100% with the human PM.
+Out: (1) hiring or headcount decisions, (2) customer-facing comms about why a feature was deprioritised, (3) ranking churn risk without the ARR sheet. Juno cannot read ARR or the CRM; it asks the PM for the sheet. All three stay 100% with the human PM.
 
